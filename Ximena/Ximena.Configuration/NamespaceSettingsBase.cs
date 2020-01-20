@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace Ximena.Configuration
 {
-    public sealed class ViewModelConfiguration : ViewModelAdjunctConfiguration
+    public abstract class NamespaceSettingsBase
     {
-        internal ViewModelConfiguration() { }
-
-        public string type { get; set; }
+        public bool? matchAllEntities { get; set; }
     }
 }

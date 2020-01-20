@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Ximena.Configuration
 {
-    public sealed class AdjunctPropertyConfiguration
+    public sealed class AdjunctPropertyDefinition
     {
-        internal AdjunctPropertyConfiguration() { }
+        internal AdjunctPropertyDefinition() { }
 
         public string access { get; set; } = "public";
         public string type { get; set; }
