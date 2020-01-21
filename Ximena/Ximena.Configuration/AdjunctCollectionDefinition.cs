@@ -6,11 +6,17 @@ using System.Threading.Tasks;
 
 namespace Ximena.Configuration
 {
-    public sealed class AdjunctCollectionDefinition
+    public sealed class AdjunctCollectionDefinition : AdjunctPropertyDefinition
     {
-        internal AdjunctCollectionDefinition() { }
+        internal AdjunctCollectionDefinition() : base() { }
 
-        public string access { get; set; }
-        public string typeParam { get; set; }
+        public string typeParam
+        {
+            get { return base.type; }
+            set { base.type = value; }
+        }
+
+        // mask property
+        private new string type { get; set; }
     }
 }

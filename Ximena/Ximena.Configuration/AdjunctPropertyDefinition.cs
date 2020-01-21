@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Ximena.Configuration
 {
-    public sealed class AdjunctPropertyDefinition
+    public class AdjunctPropertyDefinition
     {
         internal AdjunctPropertyDefinition() { }
 

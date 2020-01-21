@@ -52,7 +52,6 @@
     <Compile Include="NamespaceSettingDefaults.cs" />
     <Compile Include="RenderSettings.cs" />
     <Compile Include="SettingsBuilder.cs" />
-    <Compile Include="ViewModelAdjunctDefinition.cs" />
     <Compile Include="ViewModelSettingsBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModelSettingDefaults.cs" />

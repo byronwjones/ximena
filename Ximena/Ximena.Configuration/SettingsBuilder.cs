@@ -24,7 +24,7 @@ namespace Ximena.Configuration
             return settings;
         }
 
-        private static void EstablishNamespace(string entityNamespace, NamespaceSettings ns,
+        private static void ConfigureNamespaceSettings(string entityNamespace, NamespaceSettings ns,
             RenderSettings settings)
         {
             var gblNS = settings.globalDefaults.nameSpace;
@@ -37,6 +37,8 @@ namespace Ximena.Configuration
             ns.mapAllEntities = ns.mapAllEntities ?? gblNS.mapAllEntities;
 
             EstablishNamespaceViewModelDefaults(ns.vmDefaults, settings);
+
+
         }
         private static void EstablishNamespaceViewModelDefaults(ViewModelNamespaceSettingDefaults nsVM,
             RenderSettings settings)
@@ -45,6 +47,65 @@ namespace Ximena.Configuration
             nsVM.dest = EstablishSettingsDirectory(settings.destRoot, nsVM.dest,
                 "Default view model namespace directory ('dest')");
             InheritViewModelSettingDefaults(nsVM, gblVM);
+        }
+        private static void ConfigureViewModelSettings(string entity, ViewModelSettings vm,
+            NamespaceSettings ns, RenderSettings settings)
+        {
+            // view model type can not be null or empty; so if possible we'll come up with one 
+            // using the entity name if not given, otherwise we fail
+            if (string.IsNullOrWhiteSpace(vm.type))
+            {
+                if(!string.IsNullOrWhiteSpace(entity))
+                {
+                    vm.type =
+                        $"{ns.vmDefaults.typePrefix}{entity}{ns.vmDefaults.typeSuffix}";
+                }
+                else
+                {
+                    throw new Exception("Parameter 'type' is required for adjunct view model definitions");
+                }
+            }
+
+            vm.dest = EstablishSettingsDirectory(settings.destRoot, vm.dest,
+                "View model source file directory ('dest')");
+
+            InheritViewModelSettingsBase(vm, ns.vmDefaults);
+
+            AssertAdjunctPropertiesValid(vm);
+            AssertAdjunctCollectionsValid(vm);
+        }
+        private static void AssertAdjunctPropertiesValid(ViewModelSettings vm)
+        {
+            AssertAdjunctMembersValid(true, vm.type, vm.properties);
+        }
+        private static void AssertAdjunctCollectionsValid(ViewModelSettings vm)
+        {
+            AssertAdjunctMembersValid(false, vm.type, vm.properties);
+        }
+        private static void AssertAdjunctMembersValid<T>(bool isProperties, string vmType,
+            Dictionary<string, T> members) where T : AdjunctPropertyDefinition
+        {
+            string pc = isProperties ? "property" : "collection";
+            foreach (var m in members)
+            {
+                if (string.IsNullOrWhiteSpace(m.Key))
+                {
+                    throw new Exception($"Unnamed key encountered in adjunct {pc} defintion for view model '{vmType}'");
+                }
+                if (m.Value == null)
+                {
+                    throw new Exception($"Null adjunct {pc} settings encountered for property '{vmType}.{m.Key}'");
+                }
+                if (string.IsNullOrWhiteSpace(m.Value.type))
+                {
+                    throw new Exception($"Type not specified for adjunct {pc} '{vmType}.{m.Key}'");
+                }
+                // ensure an access modifier is present
+                if (string.IsNullOrWhiteSpace(m.Value.access))
+                {
+                    m.Value.access = "public";
+                }
+            }
         }
 
         private static void EstablishGlobalDefaults(RenderSettings settings)
