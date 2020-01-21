@@ -21,9 +21,22 @@ namespace Ximena.Configuration
             EstablishCriticalSettings(settings, settingsDir);
             EstablishGlobalDefaults(settings);
 
+            ConfigureNamespaces(settings);
+
             return settings;
         }
 
+        private static void ConfigureNamespaces(RenderSettings settings)
+        {
+            foreach(var ns in settings.namespaces)
+            {
+                var name = ns.Key;
+                var nsSettings = ns.Value;
+
+                AssertNamespaceSettingsValid(name, nsSettings);
+                ConfigureNamespaceSettings(name, nsSettings, settings);
+            }
+        }
         private static void ConfigureNamespaceSettings(string entityNamespace, NamespaceSettings ns,
             RenderSettings settings)
         {
@@ -49,6 +62,21 @@ namespace Ximena.Configuration
                 "Default view model namespace directory ('dest')");
             InheritViewModelSettingDefaults(nsVM, gblVM);
         }
+        private static void AssertNamespaceSettingsValid(string entityNamespace,
+            NamespaceSettings ns)
+        {
+            // entity namespace must be present for namespace settings
+            if (string.IsNullOrWhiteSpace(entityNamespace))
+            {
+                throw new InvalidRenderSettingsException
+                    ("Unnamed namespace settings entry encountered");
+            }
+            if (ns == null)
+            {
+                throw new InvalidRenderSettingsException
+                    ($"Null namespace settings encountered for entity namespace '{entityNamespace}'");
+            }
+        }
 
         private static void ConfigureAdjunctViewModels(NamespaceSettings ns, RenderSettings settings)
         {
@@ -57,7 +85,8 @@ namespace Ximena.Configuration
                 // assert that model definition is not null
                 if (vm == null)
                 {
-                    throw new InvalidRenderSettingsException($"Null adjunct view model encountered in namespace '{ns.mapToNamespace}'");
+                    throw new InvalidRenderSettingsException
+                        ($"Null adjunct view model encountered in namespace '{ns.mapToNamespace}'");
                 }
                 ConfigureViewModelSettings(vm, ns, settings);
             }
@@ -129,11 +158,11 @@ namespace Ximena.Configuration
             {
                 if (string.IsNullOrWhiteSpace(m.Key))
                 {
-                    throw new InvalidRenderSettingsException($"Unnamed key encountered in {pc} defintion for view model '{vmType}'");
+                    throw new InvalidRenderSettingsException($"Unnamed entity encountered in {pc} defintion; view model '{vmType}'");
                 }
                 if (m.Value == null)
                 {
-                    throw new InvalidRenderSettingsException($"Null {pc} settings encountered for property '{vmType}.{m.Key}'");
+                    throw new InvalidRenderSettingsException($"Null {pc} settings encountered for {pc} '{vmType}.{m.Key}'");
                 }
                 if (string.IsNullOrWhiteSpace(m.Value.type))
                 {
