@@ -41,7 +41,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DoNotEmitAsObservableAttribute.cs" />
+    <Compile Include="NotViewModelAttribute.cs" />
+    <Compile Include="DoNotEmitAsViewModelAttribute.cs" />
+    <Compile Include="EmitAsViewModelAttribute.cs" />
+    <Compile Include="EmitAsObservableAttribute.cs" />
+    <Compile Include="NotViewModelPropertyAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModelAttribute.cs" />
+    <Compile Include="ViewModelPropertyAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
