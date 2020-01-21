@@ -57,7 +57,7 @@ namespace Ximena.Configuration
                 // assert that model definition is not null
                 if (vm == null)
                 {
-                    throw new Exception($"Null adjunct view model encountered in namespace '{ns.mapToNamespace}'");
+                    throw new InvalidRenderSettingsException($"Null adjunct view model encountered in namespace '{ns.mapToNamespace}'");
                 }
                 ConfigureViewModelSettings(vm, ns, settings);
             }
@@ -86,7 +86,7 @@ namespace Ximena.Configuration
                 }
                 else
                 {
-                    throw new Exception("Parameter 'type' is required for adjunct view model definitions");
+                    throw new InvalidRenderSettingsException("Parameter 'type' is required for adjunct view model definitions");
                 }
             }
 
@@ -106,11 +106,11 @@ namespace Ximena.Configuration
             // entity type must be present for view model settings
             if (string.IsNullOrWhiteSpace(entityType))
             {
-                throw new Exception($"Entity object type not specified for a view model in namespace '{nameSpace}'");
+                throw new InvalidRenderSettingsException($"Entity object type not specified for a view model in namespace '{nameSpace}'");
             }
             if (vm == null)
             {
-                throw new Exception($"Null view model settings encountered for entity '{entityType}'");
+                throw new InvalidRenderSettingsException($"Null view model settings encountered for entity '{entityType}'");
             }
         }
         private static void AssertPropertyDefinitionsValid(ViewModelSettings vm)
@@ -129,15 +129,15 @@ namespace Ximena.Configuration
             {
                 if (string.IsNullOrWhiteSpace(m.Key))
                 {
-                    throw new Exception($"Unnamed key encountered in {pc} defintion for view model '{vmType}'");
+                    throw new InvalidRenderSettingsException($"Unnamed key encountered in {pc} defintion for view model '{vmType}'");
                 }
                 if (m.Value == null)
                 {
-                    throw new Exception($"Null {pc} settings encountered for property '{vmType}.{m.Key}'");
+                    throw new InvalidRenderSettingsException($"Null {pc} settings encountered for property '{vmType}.{m.Key}'");
                 }
                 if (string.IsNullOrWhiteSpace(m.Value.type))
                 {
-                    throw new Exception($"Type not specified for {pc} '{vmType}.{m.Key}'");
+                    throw new InvalidRenderSettingsException($"Type not specified for {pc} '{vmType}.{m.Key}'");
                 }
                 // ensure an access modifier is present
                 if (string.IsNullOrWhiteSpace(m.Value.access))
@@ -224,7 +224,7 @@ namespace Ximena.Configuration
             //assembly reference must exist
             if (string.IsNullOrWhiteSpace(settings.sourceAssembly))
             {
-                throw new Exception("Required setting 'sourceAssembly' is missing or empty");
+                throw new InvalidRenderSettingsException("Required setting 'sourceAssembly' is missing or empty");
             }
             var assmPath = CombinePath(settingsDir, settings.sourceAssembly);
             if (!File.Exists(assmPath))
@@ -238,7 +238,7 @@ namespace Ximena.Configuration
             var checkPath = IsFileReference(resolvedPath);
             if (checkPath.HasValue && checkPath.Value)
             {
-                throw new Exception($"{pathDescription} may not refer to a file");
+                throw new InvalidRenderSettingsException($"{pathDescription} may not refer to a file");
             }
             Directory.CreateDirectory(resolvedPath);
 
@@ -254,7 +254,7 @@ namespace Ximena.Configuration
             }
             catch (Exception e)
             {
-                throw new Exception("Settings file is invalid", e);
+                throw new InvalidRenderSettingsException("Settings file is invalid", e);
             }
         }
         private static string GetSettingsData(string path)
@@ -271,7 +271,7 @@ namespace Ximena.Configuration
             }
             catch (Exception e)
             {
-                throw new Exception($"Failed to load settings file '{path}': {e.Message}", e);
+                throw new InvalidRenderSettingsException($"Failed to load settings file '{path}': {e.Message}", e);
             }
         }
         private static string GetSettingsPath(string path)
@@ -307,7 +307,7 @@ namespace Ximena.Configuration
             
             if(path.IndexOfAny(Path.GetInvalidPathChars()) > -1)
             {
-                throw new Exception($"File or directory reference '{path}' contains one or more invalid characters");
+                throw new InvalidRenderSettingsException($"File or directory reference '{path}' contains one or more invalid characters");
             }
         }
         private static bool? IsFileReference(string path)
@@ -329,7 +329,7 @@ namespace Ximena.Configuration
             catch (Exception e)
             {
                 var ex = $"Use of path '{b}' will result in an invalid file or directory reference";
-                throw new Exception(ex, e);
+                throw new InvalidRenderSettingsException(ex, e);
             }
         }
     }
