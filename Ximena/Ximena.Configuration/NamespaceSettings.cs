@@ -10,7 +10,7 @@ namespace Ximena.Configuration
     {
         internal NamespaceSettings() : base() { }
 
-        public string vmNamespace { get; set; }
+        public string mapToNamespace { get; set; }
         public ViewModelNamespaceSettingDefaults vmDefaults { get; set; }
          = new ViewModelNamespaceSettingDefaults();
         public Dictionary<string, ViewModelSettings> viewModels { get; set; }
