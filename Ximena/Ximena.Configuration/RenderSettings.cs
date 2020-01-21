@@ -13,7 +13,6 @@ namespace Ximena.Configuration
         public string sourceAssembly { get; set; }
         public string destRoot { get; set; }
         public GlobalDefaults globalDefaults { get; set; } = new GlobalDefaults();
-        public HashSet<string> includeNamespaces { get; set; } = new HashSet<string>();
         public Dictionary<string, NamespaceSettings> namespaces { get; set; }
          = new Dictionary<string, NamespaceSettings>();
     }

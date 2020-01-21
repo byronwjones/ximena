@@ -39,6 +39,7 @@ namespace Ximena.Configuration
             EstablishNamespaceViewModelDefaults(ns.vmDefaults, settings);
 
             ConfigureViewModels(entityNamespace, ns, settings);
+            ConfigureAdjunctViewModels(ns, settings);
         }
         private static void EstablishNamespaceViewModelDefaults(ViewModelNamespaceSettingDefaults nsVM,
             RenderSettings settings)
@@ -49,6 +50,18 @@ namespace Ximena.Configuration
             InheritViewModelSettingDefaults(nsVM, gblVM);
         }
 
+        private static void ConfigureAdjunctViewModels(NamespaceSettings ns, RenderSettings settings)
+        {
+            foreach (var vm in ns.adjunctViewModels)
+            {
+                // assert that model definition is not null
+                if (vm == null)
+                {
+                    throw new Exception($"Null adjunct view model encountered in namespace '{ns.mapToNamespace}'");
+                }
+                ConfigureViewModelSettings(vm, ns, settings);
+            }
+        }
         private static void ConfigureViewModels(string entityNamespace, NamespaceSettings ns, RenderSettings settings)
         {
             foreach(var vmEntry in ns.viewModels)
@@ -56,11 +69,11 @@ namespace Ximena.Configuration
                 var entityType = vmEntry.Key;
                 var vm = vmEntry.Value;
                 AssertViewModelSettingsValid(entityType, ns.mapToNamespace, vm);
-                ConfigureViewModelSettings(entityType, entityNamespace, vm, ns, settings);
+                ConfigureViewModelSettings(vm, ns, settings, entityType, entityNamespace);
             }
         }
-        private static void ConfigureViewModelSettings(string entity, string entityNamespace, 
-            ViewModelSettings vm, NamespaceSettings ns, RenderSettings settings)
+        private static void ConfigureViewModelSettings(ViewModelSettings vm, NamespaceSettings ns,
+            RenderSettings settings, string entity = null, string entityNamespace = null)
         {
             // view model type can not be null or empty; so if possible we'll come up with one 
             // using the entity name if not given, otherwise we fail
@@ -84,13 +97,13 @@ namespace Ximena.Configuration
 
             InheritViewModelSettingsBase(vm, ns.vmDefaults);
 
-            AssertAdjunctPropertiesValid(vm);
-            AssertAdjunctCollectionsValid(vm);
+            AssertPropertyDefinitionsValid(vm);
+            AssertCollectionDefinitionsValid(vm);
         }
         private static void AssertViewModelSettingsValid(string entityType, string nameSpace, 
             ViewModelSettings vm)
         {
-            // entity name must be present
+            // entity type must be present for view model settings
             if (string.IsNullOrWhiteSpace(entityType))
             {
                 throw new Exception($"Entity object type not specified for a view model in namespace '{nameSpace}'");
@@ -100,15 +113,15 @@ namespace Ximena.Configuration
                 throw new Exception($"Null view model settings encountered for entity '{entityType}'");
             }
         }
-        private static void AssertAdjunctPropertiesValid(ViewModelSettings vm)
+        private static void AssertPropertyDefinitionsValid(ViewModelSettings vm)
         {
-            AssertAdjunctMembersValid(true, vm.type, vm.properties);
+            AssertMemberDefinitionsValid(true, vm.type, vm.properties);
         }
-        private static void AssertAdjunctCollectionsValid(ViewModelSettings vm)
+        private static void AssertCollectionDefinitionsValid(ViewModelSettings vm)
         {
-            AssertAdjunctMembersValid(false, vm.type, vm.properties);
+            AssertMemberDefinitionsValid(false, vm.type, vm.properties);
         }
-        private static void AssertAdjunctMembersValid<T>(bool isProperties, string vmType,
+        private static void AssertMemberDefinitionsValid<T>(bool isProperties, string vmType,
             Dictionary<string, T> members) where T : PropertyDefinition
         {
             string pc = isProperties ? "property" : "collection";
