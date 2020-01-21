@@ -4,12 +4,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D79F8046-2C0C-48C5-A683-335D47A6B5A3}</ProjectGuid>
+    <ProjectGuid>{16C69F5F-94AB-43F3-96EC-4ABF77C53C14}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Ximena.Configuration</RootNamespace>
-    <AssemblyName>Ximena.Configuration</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <RootNamespace>Ximena.DataAnnotations</RootNamespace>
+    <AssemblyName>Ximena.DataAnnotations</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -31,9 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -44,23 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CollectionDefinition.cs" />
-    <Compile Include="InvalidRenderSettingsException.cs" />
-    <Compile Include="PropertyDefinition.cs" />
-    <Compile Include="GlobalDefaults.cs" />
-    <Compile Include="NamespaceSettings.cs" />
-    <Compile Include="NamespaceSettingsBase.cs" />
-    <Compile Include="NamespaceSettingDefaults.cs" />
-    <Compile Include="RenderSettings.cs" />
-    <Compile Include="SettingsBuilder.cs" />
-    <Compile Include="ViewModelSettingsBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ViewModelSettingDefaults.cs" />
-    <Compile Include="ViewModelSettings.cs" />
-    <Compile Include="ViewModelNamespaceSettingDefaults.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
