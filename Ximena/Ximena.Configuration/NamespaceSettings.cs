@@ -11,11 +11,11 @@ namespace Ximena.Configuration
         internal NamespaceSettings() : base() { }
 
         public string mapToNamespace { get; set; }
-        public ViewModelNamespaceSettingDefaults vmDefaults { get; set; }
-         = new ViewModelNamespaceSettingDefaults();
-        public Dictionary<string, ViewModelSettings> viewModels { get; set; }
-         = new Dictionary<string, ViewModelSettings>();
-        public Dictionary<string, ViewModelAdjunctDefinition> adjunctViewModels { get; set; }
-         = new Dictionary<string, ViewModelAdjunctDefinition>();
+        public ViewModelNamespaceSettingDefaults vmDefaults { get; set; } = 
+            new ViewModelNamespaceSettingDefaults();
+        public Dictionary<string, ViewModelSettings> viewModels { get; set; } = 
+            new Dictionary<string, ViewModelSettings>();
+        public List<ViewModelSettings> adjunctViewModels { get; set; } =
+            new List<ViewModelSettings>();
     }
 }
