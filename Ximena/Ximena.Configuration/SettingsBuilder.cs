@@ -38,7 +38,7 @@ namespace Ximena.Configuration
 
             EstablishNamespaceViewModelDefaults(ns.vmDefaults, settings);
 
-
+            ConfigureViewModels(entityNamespace, ns, settings);
         }
         private static void EstablishNamespaceViewModelDefaults(ViewModelNamespaceSettingDefaults nsVM,
             RenderSettings settings)
@@ -48,8 +48,19 @@ namespace Ximena.Configuration
                 "Default view model namespace directory ('dest')");
             InheritViewModelSettingDefaults(nsVM, gblVM);
         }
-        private static void ConfigureViewModelSettings(string entity, ViewModelSettings vm,
-            NamespaceSettings ns, RenderSettings settings)
+
+        private static void ConfigureViewModels(string entityNamespace, NamespaceSettings ns, RenderSettings settings)
+        {
+            foreach(var vmEntry in ns.viewModels)
+            {
+                var entityType = vmEntry.Key;
+                var vm = vmEntry.Value;
+                AssertViewModelSettingsValid(entityType, ns.mapToNamespace, vm);
+                ConfigureViewModelSettings(entityType, entityNamespace, vm, ns, settings);
+            }
+        }
+        private static void ConfigureViewModelSettings(string entity, string entityNamespace, 
+            ViewModelSettings vm, NamespaceSettings ns, RenderSettings settings)
         {
             // view model type can not be null or empty; so if possible we'll come up with one 
             // using the entity name if not given, otherwise we fail
@@ -68,11 +79,26 @@ namespace Ximena.Configuration
 
             vm.dest = EstablishSettingsDirectory(settings.destRoot, vm.dest,
                 "View model source file directory ('dest')");
+            vm.EntityNamespace = entityNamespace;
+            vm.ViewModelNamespace = ns.mapToNamespace;
 
             InheritViewModelSettingsBase(vm, ns.vmDefaults);
 
             AssertAdjunctPropertiesValid(vm);
             AssertAdjunctCollectionsValid(vm);
+        }
+        private static void AssertViewModelSettingsValid(string entityType, string nameSpace, 
+            ViewModelSettings vm)
+        {
+            // entity name must be present
+            if (string.IsNullOrWhiteSpace(entityType))
+            {
+                throw new Exception($"Entity object type not specified for a view model in namespace '{nameSpace}'");
+            }
+            if (vm == null)
+            {
+                throw new Exception($"Null view model settings encountered for entity '{entityType}'");
+            }
         }
         private static void AssertAdjunctPropertiesValid(ViewModelSettings vm)
         {
@@ -83,22 +109,22 @@ namespace Ximena.Configuration
             AssertAdjunctMembersValid(false, vm.type, vm.properties);
         }
         private static void AssertAdjunctMembersValid<T>(bool isProperties, string vmType,
-            Dictionary<string, T> members) where T : AdjunctPropertyDefinition
+            Dictionary<string, T> members) where T : PropertyDefinition
         {
             string pc = isProperties ? "property" : "collection";
             foreach (var m in members)
             {
                 if (string.IsNullOrWhiteSpace(m.Key))
                 {
-                    throw new Exception($"Unnamed key encountered in adjunct {pc} defintion for view model '{vmType}'");
+                    throw new Exception($"Unnamed key encountered in {pc} defintion for view model '{vmType}'");
                 }
                 if (m.Value == null)
                 {
-                    throw new Exception($"Null adjunct {pc} settings encountered for property '{vmType}.{m.Key}'");
+                    throw new Exception($"Null {pc} settings encountered for property '{vmType}.{m.Key}'");
                 }
                 if (string.IsNullOrWhiteSpace(m.Value.type))
                 {
-                    throw new Exception($"Type not specified for adjunct {pc} '{vmType}.{m.Key}'");
+                    throw new Exception($"Type not specified for {pc} '{vmType}.{m.Key}'");
                 }
                 // ensure an access modifier is present
                 if (string.IsNullOrWhiteSpace(m.Value.access))

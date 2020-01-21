@@ -44,8 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdjunctCollectionDefinition.cs" />
-    <Compile Include="AdjunctPropertyDefinition.cs" />
+    <Compile Include="CollectionDefinition.cs" />
+    <Compile Include="PropertyDefinition.cs" />
     <Compile Include="GlobalDefaults.cs" />
     <Compile Include="NamespaceSettings.cs" />
     <Compile Include="NamespaceSettingsBase.cs" />

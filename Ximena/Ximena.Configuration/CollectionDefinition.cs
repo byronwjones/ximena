@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Ximena.Configuration
 {
-    public sealed class AdjunctCollectionDefinition : AdjunctPropertyDefinition
+    public sealed class CollectionDefinition : PropertyDefinition
     {
-        internal AdjunctCollectionDefinition() : base() { }
+        internal CollectionDefinition() : base() { }
 
         public string typeParam
         {

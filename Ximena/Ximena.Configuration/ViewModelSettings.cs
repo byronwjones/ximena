@@ -12,9 +12,13 @@ namespace Ximena.Configuration
 
         public string type { get; set; }
         public string dest { get; set; }
-        public Dictionary<string, AdjunctPropertyDefinition> properties { get; set; }
-         = new Dictionary<string, AdjunctPropertyDefinition>();
-        public Dictionary<string, AdjunctCollectionDefinition> collections { get; set; }
-         = new Dictionary<string, AdjunctCollectionDefinition>();
+        public Dictionary<string, PropertyDefinition> properties { get; set; }
+         = new Dictionary<string, PropertyDefinition>();
+        public Dictionary<string, CollectionDefinition> collections { get; set; }
+         = new Dictionary<string, CollectionDefinition>();
+
+        // user can set these, but there's no point - system sets these values
+        public string EntityNamespace { get; set; }
+        public string ViewModelNamespace { get; set; }
     }
 }
