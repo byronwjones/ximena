@@ -11,7 +11,7 @@ namespace Ximena.Configuration
         internal ViewModelSettings() { }
 
         public string type { get; set; }
-        public string dest { get; set; }
+        public string emitTo { get; set; }
         public Dictionary<string, PropertyDefinition> properties { get; set; }
          = new Dictionary<string, PropertyDefinition>();
         public Dictionary<string, CollectionDefinition> collections { get; set; }

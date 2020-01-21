@@ -47,7 +47,7 @@ namespace Ximena.Configuration
                 ns.mapToNamespace = 
                     $"{gblNS.vmNamespacePrefix}{entityNamespace}{gblNS.vmNamespaceSuffix}";
             }
-            ns.mapAllEntities = ns.mapAllEntities ?? gblNS.mapAllEntities;
+            ns.emitAllEntities = ns.emitAllEntities ?? gblNS.emitAllEntities;
 
             EstablishNamespaceViewModelDefaults(ns.vmDefaults, settings);
 
@@ -58,8 +58,8 @@ namespace Ximena.Configuration
             RenderSettings settings)
         {
             var gblVM = settings.globalDefaults.viewModel;
-            nsVM.dest = EstablishSettingsDirectory(settings.destRoot, nsVM.dest,
-                "Default view model namespace directory ('dest')");
+            nsVM.emitTo = EstablishSettingsDirectory(settings.emitDir, nsVM.emitTo,
+                "Default view model namespace directory ('emitTo')");
             InheritViewModelSettingDefaults(nsVM, gblVM);
         }
         private static void AssertNamespaceSettingsValid(string entityNamespace,
@@ -119,8 +119,8 @@ namespace Ximena.Configuration
                 }
             }
 
-            vm.dest = EstablishSettingsDirectory(settings.destRoot, vm.dest,
-                "View model source file directory ('dest')");
+            vm.emitTo = EstablishSettingsDirectory(settings.emitDir, vm.emitTo,
+                "View model source file directory ('emitTo')");
             vm.EntityNamespace = entityNamespace;
             vm.ViewModelNamespace = ns.mapToNamespace;
 
@@ -185,7 +185,7 @@ namespace Ximena.Configuration
         {
             // any default not explicitly set is overriden with system default setting
             var ns = settings.globalDefaults.nameSpace;
-            ns.mapAllEntities = ns.mapAllEntities ?? true;
+            ns.emitAllEntities = ns.emitAllEntities ?? true;
             ns.vmNamespacePrefix = ns.vmNamespacePrefix ?? string.Empty;
             ns.vmNamespaceSuffix = ns.vmNamespaceSuffix ?? ".ViewModels";
         }
@@ -195,9 +195,10 @@ namespace Ximena.Configuration
             var sysDefaults = new ViewModelSettingDefaults
             {
                 access = "public",
+                emitEntityPropertiesAsViewModels = false,
                 inheritUsings = true,
-                makeCollectionsObservable = true,
-                mapAllProperties = true,
+                emitCollectionsAsObservable = false,
+                emitAllProperties = true,
                 partialClass = true,
                 stubForCustomCode = true,
                 typePrefix = string.Empty,
@@ -219,6 +220,8 @@ namespace Ximena.Configuration
             (ViewModelSettingsBase target, ViewModelSettingsBase parent)
         {
             target.access = target.access ?? parent.access;
+            target.emitEntityPropertiesAsViewModels =
+                target.emitEntityPropertiesAsViewModels ?? parent.emitEntityPropertiesAsViewModels;
             target.inheritUsings = target.inheritUsings ?? parent.inheritUsings;
             if(target.inheritUsings == true)
             {
@@ -227,9 +230,9 @@ namespace Ximena.Configuration
                     target.usings.Add(u);
                 }
             }
-            target.makeCollectionsObservable =
-                target.makeCollectionsObservable ?? parent.makeCollectionsObservable;
-            target.mapAllProperties = target.mapAllProperties ?? parent.mapAllProperties;
+            target.emitCollectionsAsObservable =
+                target.emitCollectionsAsObservable ?? parent.emitCollectionsAsObservable;
+            target.emitAllProperties = target.emitAllProperties ?? parent.emitAllProperties;
             // stubForCustomCode being set true causes partialClass to be true, regardless of its actual value.
             // if stubForCustomCode is set to any other value, partialClass returns its true state
             // we'll preserve stubForCustomCode's set value, set it to null, then restore its original
@@ -245,8 +248,8 @@ namespace Ximena.Configuration
             // make sure source assembly file was specified and exists
             AssertSourceAssembly(settingsDir, settings);
             // establish root directory view model source will be written to
-            settings.destRoot = EstablishSettingsDirectory(settingsDir, settings.destRoot,
-                pathDescription: "Source code output directory ('destRoot')");
+            settings.emitDir = EstablishSettingsDirectory(settingsDir, settings.emitDir,
+                pathDescription: "Source code output directory ('emitDir')");
         }
         private static void AssertSourceAssembly(string settingsDir, RenderSettings settings)
         {

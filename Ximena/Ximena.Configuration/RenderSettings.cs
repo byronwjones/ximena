@@ -11,7 +11,7 @@ namespace Ximena.Configuration
         internal RenderSettings() { }
 
         public string sourceAssembly { get; set; }
-        public string destRoot { get; set; }
+        public string emitDir { get; set; }
         public GlobalDefaults globalDefaults { get; set; } = new GlobalDefaults();
         public Dictionary<string, NamespaceSettings> namespaces { get; set; }
          = new Dictionary<string, NamespaceSettings>();

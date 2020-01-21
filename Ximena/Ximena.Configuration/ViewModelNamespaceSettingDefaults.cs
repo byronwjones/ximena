@@ -10,6 +10,6 @@ namespace Ximena.Configuration
     {
         internal ViewModelNamespaceSettingDefaults() { }
 
-        public string dest { get; set; }
+        public string emitTo { get; set; }
     }
 }

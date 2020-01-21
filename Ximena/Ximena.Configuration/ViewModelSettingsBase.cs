@@ -28,8 +28,9 @@ namespace Ximena.Configuration
         public bool? inheritUsings { get; set; }
         public HashSet<string> usings { get; set; }
         public bool? stubForCustomCode { get; set; }
-        public bool? mapAllProperties { get; set; }
-        public bool? makeCollectionsObservable { get; set; }
+        public bool? emitAllProperties { get; set; }
+        public bool? emitCollectionsAsObservable { get; set; }
+        public bool? emitEntityPropertiesAsViewModels { get; set; }
 
         private bool? _partialClass = true;
     }

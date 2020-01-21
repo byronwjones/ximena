@@ -8,6 +8,6 @@ namespace Ximena.Configuration
 {
     public abstract class NamespaceSettingsBase
     {
-        public bool? mapAllEntities { get; set; }
+        public bool? emitAllEntities { get; set; }
     }
 }
