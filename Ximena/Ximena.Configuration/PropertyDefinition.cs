@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 
 namespace Ximena.Configuration
 {
-    public class PropertyDefinition
+    public sealed class PropertyDefinition : MemberDefinition
     {
-        internal PropertyDefinition() { }
-
-        public string access { get; set; } = "public";
-        public string type { get; set; }
-        public string summary { get; set; }
-        public bool readOnly { get; set; }
+        public string type
+        {
+            get { return _type; }
+            set { _type = value; }
+        }
     }
 }

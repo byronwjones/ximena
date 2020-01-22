@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="CollectionDefinition.cs" />
     <Compile Include="InvalidRenderSettingsException.cs" />
+    <Compile Include="MemberDefinition.cs" />
     <Compile Include="PropertyDefinition.cs" />
     <Compile Include="GlobalDefaults.cs" />
     <Compile Include="NamespaceSettings.cs" />

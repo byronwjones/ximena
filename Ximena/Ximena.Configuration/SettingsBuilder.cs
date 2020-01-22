@@ -152,20 +152,20 @@ namespace Ximena.Configuration
             AssertMemberDefinitionsValid(false, vm.type, vm.properties);
         }
         private static void AssertMemberDefinitionsValid<T>(bool isProperties, string vmType,
-            Dictionary<string, T> members) where T : PropertyDefinition
+            Dictionary<string, T> members) where T : MemberDefinition
         {
             string pc = isProperties ? "property" : "collection";
             foreach (var m in members)
             {
                 if (string.IsNullOrWhiteSpace(m.Key))
                 {
-                    throw new InvalidRenderSettingsException($"Unnamed entity encountered in {pc} defintion; view model '{vmType}'");
+                    throw new InvalidRenderSettingsException($"Unnamed {pc} definition encountered in view model '{vmType}'");
                 }
                 if (m.Value == null)
                 {
                     throw new InvalidRenderSettingsException($"Null {pc} settings encountered for {pc} '{vmType}.{m.Key}'");
                 }
-                if (string.IsNullOrWhiteSpace(m.Value.type))
+                if (string.IsNullOrWhiteSpace(m.Value.GetPropertyType()))
                 {
                     throw new InvalidRenderSettingsException($"Type not specified for {pc} '{vmType}.{m.Key}'");
                 }
@@ -174,6 +174,8 @@ namespace Ximena.Configuration
                 {
                     m.Value.access = "public";
                 }
+                // note property name within object
+                m.Value.SetName(m.Key);
             }
         }
 

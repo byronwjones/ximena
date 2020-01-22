@@ -6,17 +6,13 @@ using System.Threading.Tasks;
 
 namespace Ximena.Configuration
 {
-    public sealed class CollectionDefinition : PropertyDefinition
+    public sealed class CollectionDefinition : MemberDefinition
     {
-        internal CollectionDefinition() : base() { }
-
+        public string collectionType { get; set; } = "ObservableCollectionPlus";
         public string typeParam
         {
-            get { return base.type; }
-            set { base.type = value; }
+            get { return _type; }
+            set { _type = value; }
         }
-
-        // mask property
-        private new string type { get; set; }
     }
 }
