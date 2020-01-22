@@ -45,7 +45,7 @@
     <Compile Include="AssemblyParser.cs" />
     <Compile Include="AssemblyParsingException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PropertyParser.cs" />
+    <Compile Include="PropertyInfoParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ximena.Configuration\Ximena.Configuration.csproj">

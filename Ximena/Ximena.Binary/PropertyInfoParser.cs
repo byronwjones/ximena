@@ -34,9 +34,9 @@ namespace Ximena.Binary
 
             return coll;
         }
-        public static bool IsPropertyIList(Type type)
+        public static bool IsPropertyIList(PropertyInfo info)
         {
-            return GetIListInterface(type) != null;
+            return GetIListInterface(info.PropertyType) != null;
         }
 
         private static string ResolveTypeName(Type type, out string[] dependencies)

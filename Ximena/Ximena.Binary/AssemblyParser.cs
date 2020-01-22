@@ -32,10 +32,14 @@ namespace Ximena.Binary
 
             if (attr != null)
             {
-                ApplyViewModelSettings(vms, attr);
+                ApplyViewModelAttribute(vms, attr);
             }
+
+            //inherit view model settings here
+
+            //DiscoverViewModelProperties
         }
-        private static void ApplyViewModelSettings(ViewModelSettings vm, ViewModelAttribute attr)
+        private static void ApplyViewModelAttribute(ViewModelSettings vm, ViewModelAttribute attr)
         {
             vm.access = attr.AccessModifier;
             vm.emitAllProperties = attr.EmitAllProperties;
@@ -50,6 +54,108 @@ namespace Ximena.Binary
             {
                 vm.usings.Add(u);
             }
+        }
+        private static List<PropertyInfo> DiscoverViewModelProperties(ViewModelSettings vm, Type entity)
+        {
+            List<PropertyInfo> properties = null;
+            if (vm.emitAllProperties == true)
+            {
+                properties = entity.GetProperties()
+                    .Where(p => p.GetCustomAttribute<NotViewModelPropertyAttribute>() == null)
+                    .ToList();
+            }
+            else
+            {
+                properties = entity.GetProperties()
+                    .Where(p => p.GetCustomAttribute<ViewModelPropertyAttribute>() != null &&
+                    p.GetCustomAttribute<NotViewModelPropertyAttribute>() == null)
+                    .ToList();
+            }
+
+            return properties;
+        }
+        private static void ConfigureViewModelProperty(PropertyInfo propInfo, ViewModelSettings vm,
+            List<Type> entities)
+        {
+            MemberDefinition propDef;
+            if (PropertyInfoParser.IsPropertyIList(propInfo))
+            {
+                propDef = PropertyInfoParser.BuildCollectionDefinition(propInfo);
+            }
+            else
+            {
+                propDef = PropertyInfoParser.BuildPropertyDefinition(propInfo);
+            }
+
+            var attr = propInfo.GetCustomAttribute<ViewModelPropertyAttribute>();
+            if (attr != null)
+            {
+                ApplyViewModelPropertyAttribute(propDef, attr);
+            }
+
+            // submit namespaces used by this property as usings
+            var deps = propDef.GetDependencies();
+            foreach (var ns in deps)
+            {
+                vm.usings.Add(ns);
+            }
+
+            // collections
+            if(propDef is CollectionDefinition)
+            {
+                ConfigureCollectionProperty(propInfo, vm, entities, propDef);
+            }
+            // entities
+            else if(entities.Any(e=>e.Name == propDef.GetPropertyType()))
+            {
+                ConfigureEntityProperty(propInfo, vm, propDef);
+            }
+
+            // attach to view model
+        }
+        private static void ConfigureCollectionProperty(PropertyInfo propInfo, ViewModelSettings vm, List<Type> entities, MemberDefinition propDef)
+        {
+            var doNotEmitAsObservable =
+                                propInfo.GetCustomAttribute<DoNotEmitAsObservableAttribute>() != null;
+            var emitAsObservable = propInfo.GetCustomAttribute<EmitAsObservableAttribute>();
+
+            // if not explicitly restricted from emitting this an observable,
+            // and we are implicitly making collections observable or there is a explicit
+            // designation of this property as observable, make it so
+            if (doNotEmitAsObservable == false &&
+                (vm.emitCollectionsAsObservable == true || emitAsObservable != null))
+            {
+                var coll = propDef as CollectionDefinition;
+                coll.collectionType = "ObservableCollectionPlus";
+
+                // determine whether or not to emit this collection's type parameter
+                // as a view model.  This is something we'll need to do later on,
+                // once we have all of our view model settings in place, as we'll
+                // need to do a lookup on these settings to get the view model name
+                coll.SetEmitAsViewModel(
+                    emitAsObservable?.EmitTypeParamAsViewModel == true &&
+                    entities.Any(e => e.Name == coll.GetName()));
+            }
+        }
+        private static void ConfigureEntityProperty(PropertyInfo propInfo, ViewModelSettings vm, MemberDefinition propDef)
+        {
+            var doNotEmitAsViewModel =
+                                propInfo.GetCustomAttribute<DoNotEmitAsViewModelAttribute>() != null;
+            var emitAsViewModel = propInfo.GetCustomAttribute<EmitAsViewModelAttribute>() != null;
+
+            // if not explicitly restricted from emitting this as a view model,
+            // and we are implicitly emitting entity properties as view models or there is a explicit
+            // instruction to emit this property as a view model, make it so
+            propDef.SetEmitAsViewModel(doNotEmitAsViewModel == false &&
+                (vm.emitEntityPropertiesAsViewModels == true || emitAsViewModel == true));
+        }
+
+        private static void ApplyViewModelPropertyAttribute(MemberDefinition prop,
+            ViewModelPropertyAttribute attr)
+        {
+            prop.access = attr.AccessModifier;
+            prop.readOnly = attr.ReadOnly;
+            prop.summary = attr.Summary;
         }
 
         private static void PruneSettings(List<Type> entities, RenderSettings settings)
