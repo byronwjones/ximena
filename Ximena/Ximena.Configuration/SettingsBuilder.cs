@@ -122,6 +122,7 @@ namespace Ximena.Configuration
             vm.emitTo = EstablishSettingsDirectory(settings.emitDir, vm.emitTo,
                 "View model source file directory ('emitTo')");
             vm.EntityNamespace = entityNamespace;
+            vm.EntityType = entity;
             vm.ViewModelNamespace = ns.mapToNamespace;
 
             InheritViewModelSettingsBase(vm, ns.vmDefaults);

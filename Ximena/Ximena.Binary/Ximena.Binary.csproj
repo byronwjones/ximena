@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Ximena.Binary</RootNamespace>
     <AssemblyName>Ximena.Binary</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,7 +43,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyParser.cs" />
+    <Compile Include="AssemblyParsingException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Ximena.Configuration\Ximena.Configuration.csproj">
+      <Project>{d79f8046-2c0c-48c5-a683-335d47a6b5a3}</Project>
+      <Name>Ximena.Configuration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Ximena.DataAnnotations\Ximena.DataAnnotations.csproj">
+      <Project>{16c69f5f-94ab-43f3-96ec-4abf77c53c14}</Project>
+      <Name>Ximena.DataAnnotations</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

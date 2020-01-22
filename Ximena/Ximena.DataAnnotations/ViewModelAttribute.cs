@@ -34,7 +34,7 @@ namespace Ximena.DataAnnotations
             AccessModifier = accessModifier;
             PartialClass = partialClass;
             InheritUsings = inheritUsings;
-            Usings = usings;
+            Usings = usings ?? new string[0];
             CreateStubForCustomCode = createStubForCustomCode;
             EmitAllProperties = emitAllProperties;
             EmitCollectionsAsObservable = emitCollectionsAsObservable;
