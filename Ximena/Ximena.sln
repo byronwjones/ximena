@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ximena.DataAnnotations", "X
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ximena.Binary", "Ximena.Binary\Ximena.Binary.csproj", "{4184F1DA-F57B-4047-87E5-0BC8106AD42B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ximena.Rendering", "Ximena.Rendering\Ximena.Rendering.csproj", "{A869D98B-2DEE-4FF5-A29A-7938E3BD95BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{4184F1DA-F57B-4047-87E5-0BC8106AD42B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4184F1DA-F57B-4047-87E5-0BC8106AD42B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4184F1DA-F57B-4047-87E5-0BC8106AD42B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A869D98B-2DEE-4FF5-A29A-7938E3BD95BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A869D98B-2DEE-4FF5-A29A-7938E3BD95BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A869D98B-2DEE-4FF5-A29A-7938E3BD95BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A869D98B-2DEE-4FF5-A29A-7938E3BD95BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
