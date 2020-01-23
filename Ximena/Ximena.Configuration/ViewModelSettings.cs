@@ -17,9 +17,19 @@ namespace Ximena.Configuration
         public Dictionary<string, CollectionDefinition> collections { get; set; }
          = new Dictionary<string, CollectionDefinition>();
 
-        // user technically can set these, but there's no point - system sets these values
-        public string EntityNamespace { get; set; }
-        public string EntityType { get; set; }
-        public string ViewModelNamespace { get; set; }
+        // internal use
+        public bool HasPublicEntity() => _hasPublicEntity;
+        public void HasPublicEntity(bool value) => _hasPublicEntity = value;
+        public string EntityNamespace() => _entityNamespace;
+        public void EntityNamespace(string es) => _entityNamespace = es;
+        public string EntityType() => _entityType;
+        public void EntityType(string et) => _entityType = et;
+        public string ViewModelNamespace() => _viewModelNamespace;
+        public void ViewModelNamespace(string vmn) => _viewModelNamespace = vmn;
+
+        private bool _hasPublicEntity;
+        private string _entityNamespace;
+        private string _viewModelNamespace;
+        private string _entityType;
     }
 }

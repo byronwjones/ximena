@@ -17,27 +17,110 @@ namespace Ximena.Binary
             // get all entities in this assembly
             var allEntities = assembly.GetTypes().Where(t => t.IsClass).ToList();
 
+            // remove unusable namespace and view model settings
             PruneSettings(allEntities, settings);
 
+            // add or update view model settings using entities and their annotations
             var vmEntities = DiscoverViewModelEntities(allEntities, settings);
+            foreach(var entity in vmEntities)
+            {
+                BuildViewModelSettingsForEntity(entity, settings, allEntities);
+            }
+
+            // refine property definitions that are of view model types
+            ResolveViewModelReferences(settings);
         }
 
+        private static void ResolveViewModelReferences(RenderSettings settings)
+        {
+            foreach(var ns in settings.namespaces)
+            {
+                foreach(var vm in ns.Value.viewModels)
+                {
+                    // get all members with view model types
+                    List<MemberDefinition> members = new List<MemberDefinition>();
+                    var props = vm.Value.properties.Where(p => p.Value.EmitAsViewModel())
+                        .Select(x => x.Value);
+                    members.AddRange(props);
+                    var colls = vm.Value.collections.Where(c => c.Value.EmitAsViewModel())
+                        .Select(x => x.Value);
+                    members.AddRange(colls);
 
-        private static void BuildViewModelSettingsForEntity(Type entity, RenderSettings settings)
+                    foreach(var m in members)
+                    {
+                        ResolveViewModelName(m, vm.Value, settings);
+                    }
+                }
+            }
+        }
+        private static void ResolveViewModelName(MemberDefinition member, 
+            ViewModelSettings viewModel, RenderSettings settings)
+        {
+            var namespaces = member.Dependencies();
+            // if we don't have specific namespaces to search, we search them all
+            if(namespaces == null || namespaces.Length == 0)
+            {
+                namespaces = settings.namespaces.Select(n => n.Key).ToArray();
+            }
+            
+            foreach (var ns in namespaces)
+            {
+                var vms = FindViewModelSettingsInNamespace(ns, member.PropertyType(), settings);
+                if (vms != null)
+                {
+                    // we are using the discovered view model's namespace
+                    viewModel.usings.Add(vms.ViewModelNamespace());
+                    if (member is CollectionDefinition)
+                    {
+                        (member as CollectionDefinition).typeParam = vms.type;
+                    }
+                    else
+                    {
+                        (member as PropertyDefinition).type = vms.type;
+                    }
+
+                    return; // success - we stop right here
+                }
+            }
+
+            // if we get here, a view model was never found, so we are not emitting as view model
+            member.EmitAsViewModel(false);
+        }
+        private static ViewModelSettings FindViewModelSettingsInNamespace
+            (string entityNamespace, string entity, RenderSettings settings)
+        {
+            if (!settings.namespaces.ContainsKey(entityNamespace)) { return null; }
+
+            var ns = settings.namespaces[entityNamespace];
+
+            if (!ns.viewModels.ContainsKey(entity)) { return null; }
+
+            return ns.viewModels[entity];
+        }
+
+        private static void BuildViewModelSettingsForEntity(Type entity, RenderSettings settings,
+            List<Type> allEntities)
         {
             var attr = entity.GetCustomAttribute<ViewModelAttribute>();
             var vms = new ViewModelSettings();
-            vms.EntityType = entity.Name;
-            vms.EntityNamespace = entity.Namespace;
+            vms.EntityType(entity.Name);
+            vms.EntityNamespace(entity.Namespace);
+            vms.HasPublicEntity(entity.IsPublic);
 
             if (attr != null)
             {
                 ApplyViewModelAttribute(vms, attr);
             }
 
-            //inherit view model settings here
+            // add or update the view model on its namespace settings
+            SettingsBuilder.IncludeViewModelSettings(settings, vms);
 
-            //DiscoverViewModelProperties
+            // find and build view model rendering settings for all relevant properties in the entity
+            var props = DiscoverViewModelProperties(vms, entity);
+            foreach(var p in props)
+            {
+                ConfigureViewModelProperty(p, vms, allEntities);
+            }
         }
         private static void ApplyViewModelAttribute(ViewModelSettings vm, ViewModelAttribute attr)
         {
@@ -94,7 +177,7 @@ namespace Ximena.Binary
             }
 
             // submit namespaces used by this property as usings
-            var deps = propDef.GetDependencies();
+            var deps = propDef.Dependencies();
             foreach (var ns in deps)
             {
                 vm.usings.Add(ns);
@@ -106,12 +189,13 @@ namespace Ximena.Binary
                 ConfigureCollectionProperty(propInfo, vm, entities, propDef);
             }
             // entities
-            else if(entities.Any(e=>e.Name == propDef.GetPropertyType()))
+            else if(entities.Any(e=>e.Name == propDef.PropertyType()))
             {
-                ConfigureEntityProperty(propInfo, vm, propDef);
+                ConfigureEntityProperty(propInfo, vm, entities, propDef);
             }
 
-            // attach to view model
+            // add or update this member on its view model settings
+            SettingsBuilder.IncludeMemberDefinition(propDef, vm);
         }
         private static void ConfigureCollectionProperty(PropertyInfo propInfo, ViewModelSettings vm, List<Type> entities, MemberDefinition propDef)
         {
@@ -132,29 +216,32 @@ namespace Ximena.Binary
                 // as a view model.  This is something we'll need to do later on,
                 // once we have all of our view model settings in place, as we'll
                 // need to do a lookup on these settings to get the view model name
-                coll.SetEmitAsViewModel(
+                coll.EmitAsViewModel(
                     emitAsObservable?.EmitTypeParamAsViewModel == true &&
-                    entities.Any(e => e.Name == coll.GetName()));
+                    entities.Any(e => e.Name == coll.typeParam));
             }
         }
-        private static void ConfigureEntityProperty(PropertyInfo propInfo, ViewModelSettings vm, MemberDefinition propDef)
+        private static void ConfigureEntityProperty(PropertyInfo propInfo, ViewModelSettings vm, List<Type> entities, MemberDefinition propDef)
         {
             var doNotEmitAsViewModel =
                                 propInfo.GetCustomAttribute<DoNotEmitAsViewModelAttribute>() != null;
             var emitAsViewModel = propInfo.GetCustomAttribute<EmitAsViewModelAttribute>() != null;
 
+            var prop = propDef as PropertyDefinition;
             // if not explicitly restricted from emitting this as a view model,
             // and we are implicitly emitting entity properties as view models or there is a explicit
             // instruction to emit this property as a view model, make it so
-            propDef.SetEmitAsViewModel(doNotEmitAsViewModel == false &&
-                (vm.emitEntityPropertiesAsViewModels == true || emitAsViewModel == true));
+            propDef.EmitAsViewModel(doNotEmitAsViewModel == false &&
+                (vm.emitEntityPropertiesAsViewModels == true || emitAsViewModel == true) &&
+                entities.Any(e => e.Name == prop.type));
         }
 
         private static void ApplyViewModelPropertyAttribute(MemberDefinition prop,
             ViewModelPropertyAttribute attr)
         {
             prop.access = attr.AccessModifier;
-            prop.readOnly = attr.ReadOnly;
+            // the read only setting on an attribute is only relevant if its value is true
+            prop.readOnly = attr.ReadOnly ? attr.ReadOnly : prop.readOnly;
             prop.summary = attr.Summary;
         }
 

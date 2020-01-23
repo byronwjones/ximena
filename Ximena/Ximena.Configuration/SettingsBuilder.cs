@@ -26,6 +26,73 @@ namespace Ximena.Configuration
             return settings;
         }
 
+        public static void IncludeViewModelSettings(RenderSettings settings, ViewModelSettings vm)
+        {
+            // get target namespace
+            var ns = settings.namespaces[vm.EntityNamespace()];
+            
+            // merge existing view model settings, if there are any
+            if(ns.viewModels.ContainsKey(vm.EntityType()))
+            {
+                var xVM = ns.viewModels[vm.EntityType()];
+                vm.type = vm.type ?? xVM.type;
+                vm.emitTo = vm.emitTo ?? xVM.emitTo;
+                InheritViewModelSettingsBase(vm, xVM);
+
+                // replace existing model with one merged with attribute settings
+                ns.viewModels[vm.EntityType()] = vm;
+            }
+            // if no settings exist, merge with view model defaults for namespace and add it in
+            else
+            {
+                ConfigureViewModelSettings(vm, ns, settings, vm.EntityType(), vm.EntityNamespace());
+                ns.viewModels.Add(vm.EntityType(), vm);
+            }
+        }
+
+        public static void IncludeMemberDefinition(MemberDefinition md, ViewModelSettings vm)
+        {
+            MemberDefinition xMember = null;
+            var isProperty = md is PropertyDefinition;
+            // merge existing member settings, if any
+            if(isProperty && vm.properties.ContainsKey(md.Name()))
+            {
+                xMember = vm.properties[md.Name()];
+            }
+            else if(!isProperty && vm.collections.ContainsKey(md.Name()))
+            {
+                xMember = vm.collections[md.Name()];
+            }
+
+            if(xMember != null)
+            {
+                // read only setting on existing member only relevant if not already true on new one
+                md.readOnly = md.readOnly ? md.readOnly : xMember.readOnly;
+                md.summary = md.summary ?? xMember.summary;
+                // replace existing member
+                if (isProperty)
+                {
+                    vm.properties[md.Name()] = md as PropertyDefinition;
+                }
+                else
+                {
+                    vm.collections[md.Name()] = md as CollectionDefinition;
+                }
+            }
+            else
+            {
+                // add new member
+                if (isProperty)
+                {
+                    vm.properties.Add(md.Name(), md as PropertyDefinition);
+                }
+                else
+                {
+                    vm.collections.Add(md.Name(), md as CollectionDefinition);
+                }
+            }
+        }
+
         private static void ConfigureNamespaces(RenderSettings settings)
         {
             foreach(var ns in settings.namespaces)
@@ -88,6 +155,9 @@ namespace Ximena.Configuration
                     throw new InvalidRenderSettingsException
                         ($"Null adjunct view model encountered in namespace '{ns.mapToNamespace}'");
                 }
+                // adjunct view models have no entity counterpart
+                vm.HasPublicEntity(false);
+
                 ConfigureViewModelSettings(vm, ns, settings);
             }
         }
@@ -119,11 +189,14 @@ namespace Ximena.Configuration
                 }
             }
 
+            // inherit emit to directory from namespace view model setting defaults if not
+            // specified
+            vm.emitTo = vm.emitTo ?? ns.vmDefaults.emitTo;
             vm.emitTo = EstablishSettingsDirectory(settings.emitDir, vm.emitTo,
                 "View model source file directory ('emitTo')");
-            vm.EntityNamespace = entityNamespace;
-            vm.EntityType = entity;
-            vm.ViewModelNamespace = ns.mapToNamespace;
+            vm.EntityNamespace(entityNamespace);
+            vm.EntityType(entity);
+            vm.ViewModelNamespace(ns.mapToNamespace);
 
             InheritViewModelSettingsBase(vm, ns.vmDefaults);
 
@@ -165,7 +238,7 @@ namespace Ximena.Configuration
                 {
                     throw new InvalidRenderSettingsException($"Null {pc} settings encountered for {pc} '{vmType}.{m.Key}'");
                 }
-                if (string.IsNullOrWhiteSpace(m.Value.GetPropertyType()))
+                if (string.IsNullOrWhiteSpace(m.Value.PropertyType()))
                 {
                     throw new InvalidRenderSettingsException($"Type not specified for {pc} '{vmType}.{m.Key}'");
                 }
@@ -175,7 +248,7 @@ namespace Ximena.Configuration
                     m.Value.access = "public";
                 }
                 // note property name within object
-                m.Value.SetName(m.Key);
+                m.Value.Name(m.Key);
             }
         }
 

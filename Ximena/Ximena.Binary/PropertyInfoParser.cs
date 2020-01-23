@@ -13,10 +13,10 @@ namespace Ximena.Binary
         public static PropertyDefinition BuildPropertyDefinition(PropertyInfo info)
         {
             var prop = new PropertyDefinition();
-            prop.SetName(info.Name);
+            prop.Name(info.Name);
             string[] nsc;
             prop.type = ResolveTypeName(info.PropertyType, out nsc);
-            prop.SetDependencies(nsc);
+            prop.Dependencies(nsc);
 
             prop.readOnly = info.GetSetMethod() == null;
 
@@ -25,10 +25,10 @@ namespace Ximena.Binary
         public static CollectionDefinition BuildCollectionDefinition(PropertyInfo info)
         {
             var coll = new CollectionDefinition();
-            coll.SetName(info.Name);
+            coll.Name(info.Name);
             coll.collectionType = GetGenericTypeName(info.PropertyType);
             coll.typeParam = GetIListTypeParam(info.PropertyType);
-            coll.SetDependencies(GetDependencies(info.PropertyType));
+            coll.Dependencies(GetDependencies(info.PropertyType));
 
             coll.readOnly = info.GetSetMethod() == null;
 

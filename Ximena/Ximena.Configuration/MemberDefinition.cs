@@ -15,16 +15,16 @@ namespace Ximena.Configuration
         protected string _type;
 
         // for internal use
-        public string GetPropertyType()
-        {
-            return _type;
-        }
-        public string GetName() => _name;
-        public void SetName(string name) => _name = name;
-        public string[] GetDependencies() => _dependencies;
-        public void SetDependencies(string[] deps) => _dependencies = deps;
-        public bool GetEmitAsViewModel() => _emitAsViewModel;
-        public void SetEmitAsViewModel(bool value) => _emitAsViewModel = value;
+        public string PropertyType() => _type;
+
+        public string Name() => _name;
+        public void Name(string name) => _name = name;
+
+        public string[] Dependencies() => _dependencies;
+        public void Dependencies(string[] deps) => _dependencies = deps;
+
+        public bool EmitAsViewModel() => _emitAsViewModel;
+        public void EmitAsViewModel(bool value) => _emitAsViewModel = value;
 
 
         private string _name;
